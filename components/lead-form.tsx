@@ -11,6 +11,18 @@ interface FormData {
   message: string;
 }
 
+// Push events to GTM dataLayer
+function pushToDataLayer(event: Record<string, unknown>) {
+  if (typeof window !== "undefined") {
+    (window as unknown as { dataLayer: Record<string, unknown>[] }).dataLayer =
+      (window as unknown as { dataLayer: Record<string, unknown>[] })
+        .dataLayer || [];
+    (
+      window as unknown as { dataLayer: Record<string, unknown>[] }
+    ).dataLayer.push(event);
+  }
+}
+
 export function LeadForm() {
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -25,6 +37,15 @@ export function LeadForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    // Fire GTM conversion event
+    pushToDataLayer({
+      event: "consultation_request",
+      form_type: "lead_form",
+      service_interest: formData.service,
+      lead_name: formData.name,
+    });
+
     setTimeout(() => {
       setLoading(false);
       setSubmitted(true);
@@ -37,6 +58,14 @@ export function LeadForm() {
     >
   ) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  // Track phone clicks
+  const handlePhoneClick = () => {
+    pushToDataLayer({
+      event: "phone_click",
+      click_location: "lead_form",
+    });
   };
 
   if (submitted) {
@@ -64,6 +93,7 @@ export function LeadForm() {
             </p>
             <a
               href="tel:2108643308"
+              onClick={handlePhoneClick}
               className="inline-flex items-center gap-3 bg-[#c94a0c] hover:bg-[#e05c1a] text-white font-black text-xl px-10 py-4 rounded-xl uppercase tracking-wide shadow-lg"
               style={{ fontFamily: "var(--font-heading)" }}
             >
@@ -133,6 +163,7 @@ export function LeadForm() {
               </p>
               <a
                 href="tel:2108643308"
+                onClick={handlePhoneClick}
                 className="flex items-center gap-3 text-[#c94a0c] hover:text-white transition-colors group"
               >
                 <div className="w-10 h-10 bg-[#c94a0c]/20 rounded-full flex items-center justify-center group-hover:bg-[#c94a0c] transition-colors">
