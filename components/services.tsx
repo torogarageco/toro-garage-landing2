@@ -43,7 +43,7 @@ const services = [
     description:
       "Professional polyurea, polyaspartic, epoxy and polished concrete coatings. Installed in as little as one day. UV stable, slip resistant, and showroom stunning.",
     image:
-      "https://galaxy-prod.tlcdn.com/view/user_313Kanfy9lKPIfcEXHq34emdQcR/df063272d90d459187a781b978858d80.jpg",
+      "https://ibb.co/PvNSqg8w",
     features: [
       "Polyurea, polyaspartic, epoxy & polished options",
       "Installed in as little as one day",
