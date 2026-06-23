@@ -95,7 +95,7 @@ export function Footer() {
 
         <div className="border-t border-white/5 pt-7 flex flex-col md:flex-row items-center justify-between gap-3">
           <p className="text-white/20 text-xs text-center md:text-left">
-            © 2025 Toro Garage Co. All rights reserved. · San Antonio, TX 78201
+            © 2026 Toro Garage Co. All rights reserved. · San Antonio, TX 78212
           </p>
           <p className="text-white/15 text-xs text-center md:text-right">
             Proudly serving San Antonio, Texas Hill Country &amp; South Texas
