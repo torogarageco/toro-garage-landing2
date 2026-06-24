@@ -48,8 +48,9 @@ export function GallerySection() {
             <span className="text-[#c94a0c]">Toro Difference</span>
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto text-lg leading-relaxed">
-            These are real San Antonio garages we&apos;ve transformed. No stock
-            photos. No renders. Every single one is our actual work.
+            These are real Texas garages we&apos;ve transformed.
+<br />
+No stock photos. No renders. Every single one is our actual work.
           </p>
         </div>
 
