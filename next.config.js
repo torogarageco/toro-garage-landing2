@@ -2,14 +2,8 @@
 const nextConfig = {
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "galaxy-prod.tlcdn.com",
-      },
-      {
-        protocol: "https",
-        hostname: "i.ibb.co",
-      },
+      { protocol: "https", hostname: "galaxy-prod.tlcdn.com" },
+      { protocol: "https", hostname: "i.ibb.co" },
     ],
   },
 };
