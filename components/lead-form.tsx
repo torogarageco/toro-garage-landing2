@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { Phone, CheckCircle, Lock } from "lucide-react";
 
+// ✅ Replace YOUR_FORM_ID with the ID from formspree.io (e.g. "xrgvwpqz")
+const FORMSPREE_ID = "xeebovvo";
+
 interface FormData {
   name: string;
   phone: string;
@@ -11,15 +14,11 @@ interface FormData {
   message: string;
 }
 
-// Push events to GTM dataLayer
 function pushToDataLayer(event: Record<string, unknown>) {
   if (typeof window !== "undefined") {
     (window as unknown as { dataLayer: Record<string, unknown>[] }).dataLayer =
-      (window as unknown as { dataLayer: Record<string, unknown>[] })
-        .dataLayer || [];
-    (
-      window as unknown as { dataLayer: Record<string, unknown>[] }
-    ).dataLayer.push(event);
+      (window as unknown as { dataLayer: Record<string, unknown>[] }).dataLayer || [];
+    (window as unknown as { dataLayer: Record<string, unknown>[] }).dataLayer.push(event);
   }
 }
 
@@ -33,39 +32,56 @@ export function LeadForm() {
   });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(false);
 
-    // Fire GTM conversion event
-    pushToDataLayer({
-      event: "consultation_request",
-      form_type: "lead_form",
-      service_interest: formData.service,
-      lead_name: formData.name,
-    });
+    try {
+      const response = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          "Full Name": formData.name,
+          "Phone Number": formData.phone,
+          "Email Address": formData.email,
+          "Service Interest": formData.service,
+          "Message": formData.message || "No message provided",
+          _subject: `New Consultation Request — ${formData.name}`,
+        }),
+      });
 
-    setTimeout(() => {
+      if (response.ok) {
+        pushToDataLayer({
+          event: "consultation_request",
+          form_type: "lead_form",
+          service_interest: formData.service,
+          lead_name: formData.name,
+        });
+        setSubmitted(true);
+      } else {
+        setError(true);
+      }
+    } catch {
+      setError(true);
+    } finally {
       setLoading(false);
-      setSubmitted(true);
-    }, 1000);
+    }
   };
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // Track phone clicks
   const handlePhoneClick = () => {
-    pushToDataLayer({
-      event: "phone_click",
-      click_location: "lead_form",
-    });
+    pushToDataLayer({ event: "phone_click", click_location: "lead_form" });
   };
 
   if (submitted) {
@@ -85,8 +101,7 @@ export function LeadForm() {
             </h3>
             <p className="text-gray-600 text-lg mb-8 leading-relaxed">
               Your request has been received. We&apos;ll contact you within{" "}
-              <strong>24 hours</strong> to schedule your free in-home
-              consultation.
+              <strong>24 hours</strong> to schedule your free in-home consultation.
             </p>
             <p className="text-gray-500 text-sm mb-5">
               Prefer to talk now? We&apos;re just a call or text away:
@@ -196,8 +211,17 @@ export function LeadForm() {
               </p>
             </div>
 
+            {error && (
+              <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+                Something went wrong. Please call us at{" "}
+                <a href="tel:2108643308" className="font-bold underline">
+                  210-864-3308
+                </a>{" "}
+                or try again.
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Name */}
               <div>
                 <label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-[0.15em]">
                   Full Name *
@@ -213,7 +237,6 @@ export function LeadForm() {
                 />
               </div>
 
-              {/* Phone + Email */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-[0.15em]">
@@ -244,7 +267,6 @@ export function LeadForm() {
                 </div>
               </div>
 
-              {/* Service selector */}
               <div>
                 <label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-[0.15em]">
                   I&apos;m Interested In *
@@ -255,25 +277,15 @@ export function LeadForm() {
                   onChange={handleChange}
                   className="w-full border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 text-sm focus:outline-none focus:border-[#c94a0c] focus:ring-2 focus:ring-[#c94a0c]/15 transition-all bg-white appearance-none cursor-pointer"
                 >
-                  <option value="cabinets">
-                    Custom Cabinets Only — Save 10%
-                  </option>
-                  <option value="cabinets-slatwall">
-                    Cabinets + Slatwall — Save 15%
-                  </option>
-                  <option value="full">
-                    Full Transformation (Cabinets + Slatwall + Coatings) — Save
-                    20%
-                  </option>
+                  <option value="cabinets">Custom Cabinets Only — Save 10%</option>
+                  <option value="cabinets-slatwall">Cabinets + Slatwall — Save 15%</option>
+                  <option value="full">Full Transformation (Cabinets + Slatwall + Coatings) — Save 20%</option>
                   <option value="coatings">Concrete Coatings Only</option>
                   <option value="slatwall">Slatwall Organizers Only</option>
-                  <option value="unsure">
-                    Not Sure Yet — I&apos;d Like a Consultation
-                  </option>
+                  <option value="unsure">Not Sure Yet — I&apos;d Like a Consultation</option>
                 </select>
               </div>
 
-              {/* Message */}
               <div>
                 <label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-[0.15em]">
                   Tell Us About Your Garage{" "}
@@ -291,7 +303,6 @@ export function LeadForm() {
                 />
               </div>
 
-              {/* Submit */}
               <button
                 type="submit"
                 disabled={loading}
@@ -301,12 +312,10 @@ export function LeadForm() {
                 {loading ? "Sending..." : "Schedule My Consultation →"}
               </button>
 
-              {/* Privacy note */}
               <div className="flex items-center justify-center gap-2 text-gray-400 text-xs">
                 <Lock className="w-3 h-3" />
                 <span>
-                  Your info is private. We never share or sell your contact
-                  info.
+                  Your info is private. We never share or sell your contact info.
                 </span>
               </div>
             </form>
